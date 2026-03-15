@@ -5,6 +5,8 @@ description = "pibox management CLI"
 requires-python = ">=3.10"
 dependencies = [
   "click>=8.1",
+  "ruff>=0.15.6",
+  "ty>=0.0.23",
 ]
 
 [project.scripts]
