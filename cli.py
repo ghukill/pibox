@@ -14,26 +14,15 @@ import shutil
 import stat
 import subprocess
 from pathlib import Path
+from typing import Final
 
 import click
 
 
-REPO_ROOT = Path(__file__).resolve().parent
-DEFAULT_IMAGE = "pibox"
-DEFAULT_BIN_DIR = Path.home() / ".local" / "bin"
-LAUNCHER_NAME = "pibox"
-
-API_ENV_VARS = [
-    "ANTHROPIC_API_KEY",
-    "OPENAI_API_KEY",
-    "GEMINI_API_KEY",
-    "AZURE_OPENAI_API_KEY",
-    "MISTRAL_API_KEY",
-    "GROQ_API_KEY",
-    "XAI_API_KEY",
-    "OPENROUTER_API_KEY",
-]
-
+REPO_ROOT: Final[Path] = Path(__file__).resolve().parent
+DEFAULT_IMAGE: Final[str] = "pibox"
+DEFAULT_BIN_DIR: Final[Path] = Path.home() / ".local" / "bin"
+LAUNCHER_NAME: Final[str] = "pibox"
 
 def run_cmd(cmd: list[str], *, cwd: Path | None = None) -> None:
     pretty = " ".join(cmd)
@@ -52,26 +41,16 @@ def build_image(image: str) -> None:
 
 
 def launcher_script(image: str) -> str:
-    env_lines = "\n".join(
-        [
-            f'  [ -n "${{{var}:-}}" ] && ENV_ARGS+=(--env "{var}=${{{var}}}")'
-            for var in API_ENV_VARS
-        ]
-    )
     return f"""#!/usr/bin/env bash
 set -euo pipefail
 
 IMAGE=\"${{PIBOX_IMAGE:-{image}}}\"
 mkdir -p \"$HOME/.pi\"
 
-ENV_ARGS=()
-{env_lines}
-
 exec docker run --rm -it \\
   --workdir /workdir \\
   --volume \"$PWD:/workdir\" \\
   --volume \"$HOME/.pi:/home/pi/.pi\" \\
-  "${{ENV_ARGS[@]}}" \\
   "$IMAGE" "$@"
 """
 
@@ -80,7 +59,9 @@ def install_launcher(bin_dir: Path, image: str) -> Path:
     bin_dir.mkdir(parents=True, exist_ok=True)
     launcher_path = bin_dir / LAUNCHER_NAME
     launcher_path.write_text(launcher_script(image), encoding="utf-8")
-    launcher_path.chmod(launcher_path.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+    launcher_path.chmod(
+        launcher_path.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH
+    )
     return launcher_path
 
 
@@ -95,7 +76,9 @@ def main() -> None:
 
 
 @main.command()
-@click.option("--image", default=DEFAULT_IMAGE, show_default=True, help="Docker image tag")
+@click.option(
+    "--image", default=DEFAULT_IMAGE, show_default=True, help="Docker image tag"
+)
 @click.option(
     "--bin-dir",
     type=click.Path(path_type=Path, file_okay=False, dir_okay=True),
@@ -114,7 +97,9 @@ def install(image: str, bin_dir: Path) -> None:
 
 
 @main.command()
-@click.option("--image", default=DEFAULT_IMAGE, show_default=True, help="Docker image tag")
+@click.option(
+    "--image", default=DEFAULT_IMAGE, show_default=True, help="Docker image tag"
+)
 @click.option(
     "--bin-dir",
     type=click.Path(path_type=Path, file_okay=False, dir_okay=True),

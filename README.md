@@ -66,16 +66,11 @@ This avoids the common mount issue where `-v ~/.pi:...` hides anything baked int
 - `"$PWD:/workdir"` → your current repository is available in-container at `/workdir`
 - `"$HOME/.pi:/home/pi/.pi"` → your auth/session/config persist across runs
 
-Common API keys are forwarded only if set in your host environment:
+Authentication is persisted via the host mount:
 
-- `ANTHROPIC_API_KEY`
-- `OPENAI_API_KEY`
-- `GEMINI_API_KEY`
-- `AZURE_OPENAI_API_KEY`
-- `MISTRAL_API_KEY`
-- `GROQ_API_KEY`
-- `XAI_API_KEY`
-- `OPENROUTER_API_KEY`
+- `"$HOME/.pi:/home/pi/.pi"`
+
+So using `pi /login` once is enough for subsequent runs.
 
 ## Included baked-in skill
 
