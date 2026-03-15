@@ -24,6 +24,7 @@ DEFAULT_IMAGE: Final[str] = "pibox"
 DEFAULT_BIN_DIR: Final[Path] = Path.home() / ".local" / "bin"
 LAUNCHER_NAME: Final[str] = "pibox"
 
+
 def run_cmd(cmd: list[str], *, cwd: Path | None = None) -> None:
     pretty = " ".join(cmd)
     click.echo(f"$ {pretty}")
@@ -35,9 +36,12 @@ def ensure_docker() -> None:
         raise click.ClickException("docker is not installed or not in PATH")
 
 
-def build_image(image: str) -> None:
+def build_image(image: str, no_cache=False) -> None:
     ensure_docker()
-    run_cmd(["docker", "build", "--tag", image, str(REPO_ROOT)])
+    cmd = ["docker", "build", "--tag", image, str(REPO_ROOT)]
+    if no_cache:
+        cmd.append("--no-cache")
+    run_cmd(cmd)
 
 
 def launcher_script(image: str) -> str:
@@ -112,7 +116,7 @@ def update(image: str, bin_dir: Path, no_pull: bool) -> None:
     """Pull latest changes, rebuild image, refresh launcher."""
     if not no_pull:
         run_cmd(["git", "pull"], cwd=REPO_ROOT)
-    build_image(image)
+    build_image(image, no_cache=True)
     launcher = install_launcher(bin_dir, image)
     click.echo(f"Updated launcher: {launcher}")
 
