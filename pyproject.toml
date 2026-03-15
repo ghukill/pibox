@@ -1,0 +1,18 @@
+[project]
+name = "pibox"
+version = "0.1.0"
+description = "pibox management CLI"
+requires-python = ">=3.10"
+dependencies = [
+  "click>=8.1",
+]
+
+[project.scripts]
+pibox-cli = "cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+py-modules = ["cli"]
